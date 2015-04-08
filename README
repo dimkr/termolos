@@ -1,0 +1,19 @@
+ _                            _
+| |_ ___ _ __ _ __ ___   ___ | | ___  ___
+| __/ _ \ '__| '_ ` _ \ / _ \| |/ _ \/ __|
+| ||  __/ |  | | | | | | (_) | | (_) \__ \
+ \__\___|_|  |_| |_| |_|\___/|_|\___/|___/
+
+Overview
+========
+
+termolos applies a random Linux (http://www.kernel.org/) console color scheme.
+
+Credits and Legal Information
+=============================
+
+termolos is free and unencumbered software released under the terms of the MIT
+license; see COPYING for the license text. For a list of its authors and
+contributors, see AUTHORS.
+
+The ASCII art logo at the top was made using FIGlet (http://www.figlet.org/).
