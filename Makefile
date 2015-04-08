@@ -25,9 +25,9 @@ termolos: $(OBJECTS)
 install: all
 	$(INSTALL) -D -m 755 termolos $(DESTDIR)/$(BIN_DIR)/termolos
 	$(INSTALL) -D -m 644 termolos.1 $(DESTDIR)/$(MAN_DIR)/man1/termolos.1
-	$(INSTALL) -D -m 644 README $(DESTDIR)/$(DOC_DIR)/shus/README
-	$(INSTALL) -m 644 AUTHORS $(DESTDIR)/$(DOC_DIR)/shus/AUTHORS
-	$(INSTALL) -m 644 COPYING $(DESTDIR)/$(DOC_DIR)/shus/COPYING
+	$(INSTALL) -D -m 644 README $(DESTDIR)/$(DOC_DIR)/termolos/README
+	$(INSTALL) -m 644 AUTHORS $(DESTDIR)/$(DOC_DIR)/termolos/AUTHORS
+	$(INSTALL) -m 644 COPYING $(DESTDIR)/$(DOC_DIR)/termolos/COPYING
 
 clean:
 	rm -f termolos $(OBJECTS)
