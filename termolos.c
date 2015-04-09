@@ -33,48 +33,21 @@
 #include <sys/ioctl.h>
 #include <linux/kd.h>
 #include <limits.h>
+#include <stdbool.h>
 
 #define USAGE "Usage: %s\n"
 
-#define RAND_BG(seed, out) \
-	do {                            \
-		out[0] = rand_r(seed) % 25; \
-		out[1] = rand_r(seed) % 25; \
-		out[2] = rand_r(seed) % 25; \
-	} while (0)
+#define RAND_MIN (0x33)
 
-#define RAND_FG(seed, out) \
-	do {                                                   \
-		out[0] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
-		out[1] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
-		out[2] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
-	} while (0)
-
-#define _RAND_COLOR(seed, out, min, max) \
-	do {                                                   \
-		out[0] = min + (rand_r(seed) % (max - min)); \
-		out[1] = min + (rand_r(seed) % (max - min)); \
-		out[2] = min + (rand_r(seed) % (max - min)); \
-	} while (0)
-
-#define DARK_COLOR(seed, out) _RAND_COLOR(seed, out, 60, 90)
-
-#define RAND_COLOR(seed, out) _RAND_COLOR(seed, out, 120, UCHAR_MAX)
-
-#define BRIGHT_COMPONENT(seed, in, out) \
-	do {                                                  \
-		if (UCHAR_MAX != in)                              \
-			out = in + rand_r(seed) % (UCHAR_MAX - in);   \
-		else                                              \
-			out = 75 + (rand_r(seed) % (UCHAR_MAX - 75)); \
-	} while (0)
-
-#define BRIGHT_COLOR(seed, in, out) \
-	do {                                       \
-		BRIGHT_COMPONENT(seed, in[0], out[0]); \
-		BRIGHT_COMPONENT(seed, in[1], out[1]); \
-		BRIGHT_COMPONENT(seed, in[2], out[2]); \
-	} while (0)
+static void rand_color(unsigned int *seed,
+                       unsigned char col[3],
+                       const unsigned int min,
+                       const unsigned int max)
+{
+	col[0] = (unsigned char) (min + (rand_r(seed) % (max - min)));
+	col[1] = (unsigned char) (min + (rand_r(seed) % (max - min)));
+	col[2] = (unsigned char) (min + (rand_r(seed) % (max - min)));
+}
 
 int main(int argc, char *argv[])
 {
@@ -82,7 +55,6 @@ int main(int argc, char *argv[])
 	int ret = EXIT_FAILURE;
 	int fd;
 	unsigned int seed;
-	int i;
 
 	if (1 != argc) {
 		(void) fprintf(stderr, USAGE, argv[0]);
@@ -95,17 +67,53 @@ int main(int argc, char *argv[])
 
 	seed = (unsigned int) time(NULL);
 
-	RAND_BG(&seed, cmap[0]);
-	RAND_COLOR(&seed, cmap[1]);
-	RAND_COLOR(&seed, cmap[2]);
-	RAND_COLOR(&seed, cmap[3]);
-	DARK_COLOR(&seed, cmap[4]);
-	RAND_COLOR(&seed, cmap[5]);
-	RAND_COLOR(&seed, cmap[6]);
-	RAND_FG(&seed, cmap[7]);
-	for (i = 1; 7 > i; ++i) {
-		BRIGHT_COLOR(&seed, cmap[i], cmap[8 + i]);
-	}
+	/* 0 must be very dark - the background color of pretty much everything */
+	rand_color(&seed, cmap[0], 0, 0x12);
+
+	rand_color(&seed, cmap[1], RAND_MIN, UCHAR_MAX);
+	rand_color(&seed, cmap[2], RAND_MIN, UCHAR_MAX);
+	rand_color(&seed, cmap[3], RAND_MIN, UCHAR_MAX);
+
+	/* 4 must be blue - MC, ytree and others assume this and pick a matching
+	 * forgeround color */
+	cmap[4][0] = 0;
+	cmap[4][1] = 0;
+	cmap[4][2] = 0xaa;
+
+	rand_color(&seed, cmap[5], RAND_MIN, UCHAR_MAX);
+
+	/* 6 must be cyan, often used as for text on blue background */
+	cmap[6][0] = 0;
+	cmap[6][1] = 0xaa;
+	cmap[6][2] = 0xaa;
+
+	/* 7 must be light, used for text */
+	cmap[7][0] = 0xaa;
+	cmap[7][1] = 0xaa;
+	cmap[7][2] = 0xaa;
+
+	/* 8 must be gray, used for text */
+	rand_color(&seed, cmap[8], 0x33, 0x55);
+
+	rand_color(&seed, cmap[9], RAND_MIN, UCHAR_MAX);
+	rand_color(&seed, cmap[10], RAND_MIN, UCHAR_MAX);
+	rand_color(&seed, cmap[11], RAND_MIN, UCHAR_MAX);
+
+	/* 12 must be dark - ytree uses it for highlighted text, with a light
+	 * background */
+	rand_color(&seed, cmap[12], 0x33, 0x55);
+
+	rand_color(&seed, cmap[13], RAND_MIN, UCHAR_MAX);
+
+	/* 14 must be light cyan */
+	cmap[14][0] = 0x55;
+	cmap[14][1] = 0xff;
+	cmap[14][2] = 0xff;
+
+	/* 15 must be white */
+	cmap[15][0] = 0xef;
+	cmap[15][1] = 0xef;
+	cmap[15][2] = 0xef;
 
  	if (-1 == ioctl(fd, PIO_CMAP, (void *) cmap))
 		goto close_fd;
