@@ -32,38 +32,44 @@
 #include <time.h>
 #include <sys/ioctl.h>
 #include <linux/kd.h>
+#include <limits.h>
 
 #define USAGE "Usage: %s\n"
 
 #define RAND_BG(seed, out) \
-	do { \
-		out[0] = rand_r(seed) % 15; \
-		out[1] = rand_r(seed) % 15; \
-		out[2] = rand_r(seed) % 15; \
+	do {                            \
+		out[0] = rand_r(seed) % 25; \
+		out[1] = rand_r(seed) % 25; \
+		out[2] = rand_r(seed) % 25; \
 	} while (0)
 
 #define RAND_FG(seed, out) \
-	do { \
-		out[0] = 190 + (rand_r(seed) % 65); \
-		out[1] = 190 + (rand_r(seed) % 65); \
-		out[2] = 190 + (rand_r(seed) % 65); \
+	do {                                                   \
+		out[0] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
+		out[1] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
+		out[2] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
 	} while (0)
 
 #define RAND_COLOR(seed, out) \
-	do { \
-		out[0] = 50 + (rand_r(seed) % 205); \
-		out[1] = 50 + (rand_r(seed) % 205); \
-		out[2] = 50 + (rand_r(seed) % 205); \
+	do {                                                   \
+		out[0] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
+		out[1] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
+		out[2] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
+	} while (0)
+
+#define BRIGHT_COMPONENT(seed, in, out) \
+	do {                                                  \
+		if (UCHAR_MAX != in)                              \
+			out = in + rand_r(seed) % (UCHAR_MAX - in);   \
+		else                                              \
+			out = 75 + (rand_r(seed) % (UCHAR_MAX - 75)); \
 	} while (0)
 
 #define BRIGHT_COLOR(seed, in, out) \
-	do { \
-		if (230 >= in[0]) \
-			out[0] = 20 + in[0]; \
-		if (230 >= in[1]) \
-			out[1] = 20 + in[1]; \
-		if (230 >= in[2]) \
-			out[2] = 20 + in[2]; \
+	do {                                       \
+		BRIGHT_COMPONENT(seed, in[0], out[0]); \
+		BRIGHT_COMPONENT(seed, in[1], out[1]); \
+		BRIGHT_COMPONENT(seed, in[2], out[2]); \
 	} while (0)
 
 int main(int argc, char *argv[])
