@@ -50,12 +50,16 @@
 		out[2] = 200 + (rand_r(seed) % (UCHAR_MAX - 200)); \
 	} while (0)
 
-#define RAND_COLOR(seed, out) \
+#define _RAND_COLOR(seed, out, min, max) \
 	do {                                                   \
-		out[0] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
-		out[1] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
-		out[2] = 120 + (rand_r(seed) % (UCHAR_MAX - 120)); \
+		out[0] = min + (rand_r(seed) % (max - min)); \
+		out[1] = min + (rand_r(seed) % (max - min)); \
+		out[2] = min + (rand_r(seed) % (max - min)); \
 	} while (0)
+
+#define DARK_COLOR(seed, out) _RAND_COLOR(seed, out, 60, 90)
+
+#define RAND_COLOR(seed, out) _RAND_COLOR(seed, out, 120, UCHAR_MAX)
 
 #define BRIGHT_COMPONENT(seed, in, out) \
 	do {                                                  \
@@ -92,13 +96,14 @@ int main(int argc, char *argv[])
 	seed = (unsigned int) time(NULL);
 
 	RAND_BG(&seed, cmap[0]);
-	BRIGHT_COLOR(&seed, cmap[0], cmap[8]);
-
+	RAND_COLOR(&seed, cmap[1]);
+	RAND_COLOR(&seed, cmap[2]);
+	RAND_COLOR(&seed, cmap[3]);
+	DARK_COLOR(&seed, cmap[4]);
+	RAND_COLOR(&seed, cmap[5]);
+	RAND_COLOR(&seed, cmap[6]);
 	RAND_FG(&seed, cmap[7]);
-	BRIGHT_COLOR(&seed, cmap[7], cmap[15]);
-
 	for (i = 1; 7 > i; ++i) {
-		RAND_COLOR(&seed, cmap[i]);
 		BRIGHT_COLOR(&seed, cmap[i], cmap[8 + i]);
 	}
 
